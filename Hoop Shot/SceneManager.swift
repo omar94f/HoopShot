@@ -14,7 +14,7 @@ import ARKit
 
 class SceneManager {
     
-    var sceneView : ARSCNView?
+    var sceneView : ARSCNView!
     var scene = SCNScene()
     
     var currentHoop : SCNNode?
@@ -22,21 +22,26 @@ class SceneManager {
     init(sceneView : ARSCNView) {
         self.sceneView = sceneView
         self.sceneView?.scene = self.scene
-        sceneView.debugOptions = ARSCNDebugOptions.showWorldOrigin
+        sceneView.debugOptions = [ARSCNDebugOptions.showWorldOrigin]
+        
 
     }
     
     func addHoop() {
+        
+        if let hoop = currentHoop { hoop.removeFromParentNode() }
+        
         guard let origin = sceneView?.session.currentFrame?.camera.transform else {
             fatalError("Could not find current frame while adding hoop")
         }
+        let ring = makeHoop()
+        var transform = ring.simdTransform
+        transform.columns.3.z = -0.4
+        ring.simdTransform = matrix_multiply(origin, transform)
         
-        var identityMatrix = matrix_identity_float4x4
-        identityMatrix.columns.3.z = 0.1 // placing hoop in front of the camera
-        let translation = matrix_multiply(origin, identityMatrix)
+        scene.rootNode.addChildNode(ring)
         
-        sceneView?.session.add(anchor: ARAnchor(transform: translation))
-        
+        currentHoop = ring
         
     }
     
@@ -49,11 +54,12 @@ class SceneManager {
 // MARK: - Game object creators
 extension SceneManager {
     
- func makeHoop() -> SCNNode{
+ func makeHoop() -> SCNNode {
         let ring = SCNTorus(ringRadius: 0.1, pipeRadius: 0.001)
         let material = SCNMaterial()
         material.diffuse.contents = UIColor.orange
         ring.materials = [material]
+    
         let ringNode = SCNNode(geometry: ring)
         ringNode.name = "Ring"
         let shape = SCNPhysicsShape(geometry: ring, options: nil)

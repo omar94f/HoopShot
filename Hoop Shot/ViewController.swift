@@ -60,11 +60,6 @@ class ViewController: UIViewController {
 
 extension ViewController : ARSCNViewDelegate {
     
-    func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
-        let ring = sceneManager.makeHoop()
-//        ring.simdTransform = anchor.transform
-        return ring
-    }
-    
+  
 }
 
