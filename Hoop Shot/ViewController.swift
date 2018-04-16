@@ -14,11 +14,22 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var sceneView: ARSCNView!
     
+    @IBOutlet weak var hoopButton: UIButton!
+    
+    var sceneManager: SceneManager!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         sceneView.delegate = self
-        
+        sceneManager = SceneManager(sceneView: sceneView)
+        setupUI()
     }
+    
+    override var prefersStatusBarHidden: Bool {
+        return true
+    }
+    
+        
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -32,14 +43,28 @@ class ViewController: UIViewController {
         
         sceneView.session.pause()
     }
+    
+    func setupUI()  {
+        self.hoopButton.layer.cornerRadius = self.hoopButton.frame.width/2
+    }
 
     
-
+    @IBAction func hoopButtonTapped(_ sender: UIButton) {
+        print("Hoop pressed")
+        sceneManager.addHoop()
+    }
+    
 }
 
 // MARK: - AR Scene View Delegate
 
 extension ViewController : ARSCNViewDelegate {
+    
+    func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
+        let ring = sceneManager.makeHoop()
+//        ring.simdTransform = anchor.transform
+        return ring
+    }
     
 }
 

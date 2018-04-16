@@ -20,17 +20,33 @@
                             <arscnView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VnQ-tF-XlS">
                                 <rect key="frame" x="0.0" y="20" width="320" height="548"/>
                             </arscnView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yBn-gh-Tb9">
+                                <rect key="frame" x="250" y="498" width="40" height="40"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="gBO-Bq-2Ll"/>
+                                    <constraint firstAttribute="width" constant="40" id="iF8-gr-yol"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="24"/>
+                                <state key="normal" title="⭕️"/>
+                                <connections>
+                                    <action selector="hoopButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ma1-dY-IjK"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="VnQ-tF-XlS" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="Kgd-QS-6hj"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="yBn-gh-Tb9" secondAttribute="trailing" constant="30" id="Nda-lZ-CVD"/>
                             <constraint firstItem="VnQ-tF-XlS" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="ZiB-GI-Tbs"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="VnQ-tF-XlS" secondAttribute="trailing" id="dto-MZ-mAa"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="yBn-gh-Tb9" secondAttribute="bottom" constant="30" id="svi-75-iQV"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="VnQ-tF-XlS" secondAttribute="bottom" id="tEW-0e-EOv"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
+                        <outlet property="hoopButton" destination="yBn-gh-Tb9" id="c9V-ug-EmS"/>
                         <outlet property="sceneView" destination="VnQ-tF-XlS" id="HbT-zB-YHN"/>
                     </connections>
                 </viewController>
