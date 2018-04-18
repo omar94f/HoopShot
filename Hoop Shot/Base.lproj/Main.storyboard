@@ -33,11 +33,23 @@
                                     <action selector="hoopButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ma1-dY-IjK"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Score: 0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MbI-0c-Sza">
+                                <rect key="frame" x="16" y="36" width="247" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="lgg-ce-mwU"/>
+                                    <constraint firstAttribute="width" constant="247" id="yis-Cz-pxK"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="1" green="0.5383402585" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="MbI-0c-Sza" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="8XZ-Wc-kF0"/>
                             <constraint firstItem="VnQ-tF-XlS" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="Kgd-QS-6hj"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="yBn-gh-Tb9" secondAttribute="trailing" constant="30" id="Nda-lZ-CVD"/>
+                            <constraint firstItem="MbI-0c-Sza" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="16" id="OOy-pN-XMz"/>
                             <constraint firstItem="VnQ-tF-XlS" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="ZiB-GI-Tbs"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="VnQ-tF-XlS" secondAttribute="trailing" id="dto-MZ-mAa"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="yBn-gh-Tb9" secondAttribute="bottom" constant="30" id="svi-75-iQV"/>
@@ -48,10 +60,12 @@
                     <connections>
                         <outlet property="hoopButton" destination="yBn-gh-Tb9" id="c9V-ug-EmS"/>
                         <outlet property="sceneView" destination="VnQ-tF-XlS" id="HbT-zB-YHN"/>
+                        <outlet property="scoreLabel" destination="MbI-0c-Sza" id="goH-XB-oK4"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="138.75" y="115.14084507042254"/>
         </scene>
     </scenes>
 </document>

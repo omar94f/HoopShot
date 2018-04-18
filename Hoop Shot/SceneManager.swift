@@ -12,8 +12,12 @@ import ARKit
 
 
 enum ObjectType : Int{
-    case hoop = 0
-    case ball
+    case hoop = 1
+    case ball = 2
+}
+
+protocol SceneMangerDelegate {
+    func setScore(score: Int)
 }
 
 class SceneManager {
@@ -26,13 +30,29 @@ class SceneManager {
     
     let velocityInverse: Double = 5
     
+    var delegate : SceneMangerDelegate?
+    
+    
+    var score = 0 {
+        didSet {
+            self.delegate?.setScore(score: score)
+        }
+    }
+    
     init(sceneView : ARSCNView) {
         self.sceneView = sceneView
         self.sceneView?.scene = self.scene
-        sceneView.debugOptions = [ARSCNDebugOptions.showWorldOrigin]
+//        sceneView.debugOptions = [ARSCNDebugOptions.showWorldOrigin]
         
 
     }
+    
+    func collisionDetected(contact : SCNPhysicsContact, delegate: (Int)->Void){
+        score += 1
+        
+    }
+    
+    
     
     func addHoop() {
         
@@ -40,11 +60,17 @@ class SceneManager {
             hoop.removeFromParentNode() }
         
         let ring = makeHoop()
+//        let cube = makeCube()
+        
+//        positionNode(node: cube, at: -0.4)
         positionNode(node: ring, at: -0.4)
         
         scene.rootNode.addChildNode(ring)
+//        scene.rootNode.addChildNode(cube)
         
         currentHoop = ring
+//        currentHoop = cube
+        
         
     }
     
@@ -57,7 +83,7 @@ class SceneManager {
         // Make and place ball at point of starting touch
         
         let ball = makeBall()
-        self.positionNode(node: ball, at: -4)
+        self.positionNode(node: ball, at: -0.7)
         
         
         // Calculate velocity
@@ -65,8 +91,6 @@ class SceneManager {
         let velocity = Float( velocityInverse/timeDifference)
         
         // Create force vector
-        
-        
         let forceVector = SCNVector3(ball.worldFront.x * velocity,
                                      ball.worldFront.y  * velocity,
                                       ball.worldFront.z * velocity )
@@ -95,9 +119,24 @@ extension SceneManager {
         let shape = SCNPhysicsShape(geometry: ring, options: nil)
         ringNode.physicsBody = SCNPhysicsBody(type: .static, shape: shape)
         ringNode.physicsBody?.isAffectedByGravity = false
+        ringNode.physicsBody?.categoryBitMask = ObjectType.hoop.rawValue
+        
         ringNode.eulerAngles.x = Float.pi/2
         
         return ringNode
+    }
+    
+    func makeCube() -> SCNNode {
+        let box = SCNBox(width: 0.1, height: 0.1, length: 0.1, chamferRadius: 0)
+        let material = SCNMaterial()
+        material.diffuse.contents = UIColor.red
+        box.materials = [material]
+      
+        let boxNode = SCNNode(geometry: box)
+        boxNode.name = "Barrier1"
+        boxNode.physicsBody = SCNPhysicsBody(type: .static, shape: nil)
+        boxNode.physicsBody?.categoryBitMask = ObjectType.hoop.rawValue
+        return boxNode
     }
     
     func makeBall() -> SCNNode {
