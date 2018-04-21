@@ -26,10 +26,15 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var scoreLabel: UILabel!
     @IBOutlet weak var hoopButton: UIButton!
+    @IBOutlet weak var sightImageView: UIImageView!
+    @IBOutlet weak var timerLabel: UILabel!
+    
     
     var sceneManager: SceneManager!
     
     var swipe : SwipeInfo?
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,16 +43,7 @@ class ViewController: UIViewController {
         sceneManager.delegate = self
         self.sceneView.scene.physicsWorld.contactDelegate = self
         setupUI()
-        let box1 = SCNBox(width: 0.1, height: 0.1, length: 0.1, chamferRadius: 0)
-        let material = SCNMaterial()
-        material.diffuse.contents = UIColor.red
-        box1.materials = [material]
-        let box1Node = SCNNode(geometry: box1)
-        box1Node.name = "Barrier1"
-        box1Node.physicsBody = SCNPhysicsBody(type: .static, shape: nil)
-        box1Node.physicsBody?.categoryBitMask = ObjectType.hoop.rawValue
-        box1Node.position = SCNVector3(0,0,-0.8)
-        self.sceneView.scene.rootNode.addChildNode(box1Node)
+        
     }
     
     override var prefersStatusBarHidden: Bool {
@@ -60,7 +56,6 @@ class ViewController: UIViewController {
         
         
         let configuration = ARWorldTrackingConfiguration()
-//        configuration.planeDetection = .horizontal
         sceneView.session.run(configuration)
     }
     
@@ -71,16 +66,9 @@ class ViewController: UIViewController {
     }
     
     func setupUI()  {
-        self.hoopButton.layer.cornerRadius = self.hoopButton.frame.width/2
-//        self.registerGestureRecognizers()
-    }
-    
-    
-    private func registerGestureRecognizers() {
-        
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.viewTapped(gesture:)))
-        self.sceneView.addGestureRecognizer(tapGestureRecognizer)
-        
+        hoopButton.layer.cornerRadius = self.hoopButton.frame.width/2
+        sightImageView.image =  UIImage(named:"Sight")!.withRenderingMode(.alwaysTemplate)
+        sightImageView.tintColor = UIColor.orange
         
     }
     
@@ -114,7 +102,7 @@ extension ViewController {
         swipe!.startTouch = firstTouch
         swipe!.startTime = Date().timeIntervalSince1970
         swipe!.startLocation = firstTouch.location(in: sceneView)
-        
+        sceneManager.touchBegan()
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -128,6 +116,7 @@ extension ViewController {
         swipe!.endTime = Date().timeIntervalSince1970
         swipe!.endLocation = firstTouch.location(in: sceneView)
         sceneManager.shoot(swipeInfo: swipe!)
+        sceneManager.touchEnded()
     }
     
     
@@ -141,7 +130,30 @@ extension ViewController : SCNPhysicsContactDelegate {
    
   
     func physicsWorld(_ world: SCNPhysicsWorld, didBegin contact: SCNPhysicsContact) {
+        
+        
+        let green = createMaterial(color: .green)
+        colorBall(contact: contact, color: green)
+        
         sceneManager.collisionDetected(contact: contact, delegate: setScore)
+    }
+    
+   
+    func createMaterial(color : UIColor) -> SCNMaterial {
+        let material  = SCNMaterial()
+        material.diffuse.contents = color
+        return material
+    }
+    
+    func colorBall(contact: SCNPhysicsContact, color: SCNMaterial) {
+        if(contact.nodeA.name == "Ball"){
+            let hoop = contact.nodeA.geometry
+            hoop?.materials = [color]
+            
+        } else {
+            let hoop = contact.nodeB.geometry
+            hoop?.materials = [color]
+        }
     }
 }
 
@@ -153,5 +165,14 @@ extension ViewController : SceneMangerDelegate {
             self.scoreLabel.text = "Score: \(score)"
         }
         
+    }
+    
+    func setTimer(count: Int) {
+        if(count > 0) {
+            timerLabel.isHidden = false
+            timerLabel.text = count.description
+        } else {
+            timerLabel.isHidden = true
+        }
     }
 }

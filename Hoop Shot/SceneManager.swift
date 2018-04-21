@@ -12,12 +12,14 @@ import ARKit
 
 
 enum ObjectType : Int{
-    case hoop = 1
-    case ball = 2
+    case ball = 0
+    case hoop = 2
+    
 }
 
 protocol SceneMangerDelegate {
     func setScore(score: Int)
+    func setTimer(count: Int)
 }
 
 class SceneManager {
@@ -26,9 +28,18 @@ class SceneManager {
     var scene = SCNScene()
     
     var currentHoop : SCNNode?
-    var shotBall : SCNNode?
+    var currentBalls : [SCNNode?] = [nil,nil]
     
-    let velocityInverse: Double = 5
+    let velocityFactor: Double = 10
+    
+    var timer : Timer?
+    var timerCount: Int = 0 {
+        didSet {
+            self.delegate?.setTimer(count: timerCount)
+        }
+    }
+    
+    
     
     var delegate : SceneMangerDelegate?
     
@@ -42,8 +53,17 @@ class SceneManager {
     init(sceneView : ARSCNView) {
         self.sceneView = sceneView
         self.sceneView?.scene = self.scene
-//        sceneView.debugOptions = [ARSCNDebugOptions.showWorldOrigin]
         
+        let box1 = SCNBox(width: 0.1, height: 0.1, length: 0.1, chamferRadius: 0)
+        let material = SCNMaterial()
+        material.diffuse.contents = UIColor.red
+        box1.materials = [material]
+        let box1Node = SCNNode(geometry: box1)
+        box1Node.name = "Barrier1"
+        box1Node.physicsBody = SCNPhysicsBody(type: .static, shape: nil)
+        box1Node.physicsBody?.categoryBitMask = ObjectType.hoop.rawValue
+        box1Node.position = SCNVector3(0,0,-0.8)
+        scene.rootNode.addChildNode(box1Node)
 
     }
     
@@ -51,7 +71,6 @@ class SceneManager {
         score += 1
         
     }
-    
     
     
     func addHoop() {
@@ -74,32 +93,45 @@ class SceneManager {
         
     }
     
+    func touchBegan() {
+        self.startTimer()
+    }
+    
+    func touchEnded() {
+        self.stopTimer()
+    }
+    
+    
     func shoot(swipeInfo: SwipeInfo) {
         
-        // Remove ball present in the scene
-        if let ball = shotBall {
-            ball.removeFromParentNode() }
-        
+//         Remove ball present in the scene
+        if currentBalls.count > 1 {
+            let ball = currentBalls.removeFirst()
+            ball?.removeFromParentNode()
+        }
+
         // Make and place ball at point of starting touch
-        
-        let ball = makeBall()
-        self.positionNode(node: ball, at: -0.7)
-        
-        
+
+        let ball = makeBall(radius: 0.04 )
+        self.positionNode(node: ball, at: -0.1)
+
+
         // Calculate velocity
-        let timeDifference = swipeInfo.endTime - swipeInfo.startTime
-        let velocity = Float( velocityInverse/timeDifference)
-        
+        let timeDifference = min(max(swipeInfo.endTime - swipeInfo.startTime, 1),5)
+        let velocity = Float( velocityFactor*timeDifference)
+
         // Create force vector
         let forceVector = SCNVector3(ball.worldFront.x * velocity,
                                      ball.worldFront.y  * velocity,
                                       ball.worldFront.z * velocity )
-        
+
         ball.physicsBody?.applyForce(forceVector, asImpulse: true)
-        
+
         scene.rootNode.addChildNode(ball)
+
+        currentBalls.append(ball)
+       
         
-        shotBall = ball
     }
     
 }
@@ -108,14 +140,14 @@ class SceneManager {
 // MARK: - Game objects
 extension SceneManager {
     
-    func makeHoop() -> SCNNode {
-        let ring = SCNTorus(ringRadius: 0.1, pipeRadius: 0.001)
+    private func makeHoop() -> SCNNode {
+        let ring = SCNTorus(ringRadius: 0.2, pipeRadius: 0.01)
         let material = SCNMaterial()
         material.diffuse.contents = UIColor.orange
         ring.materials = [material]
         
         let ringNode = SCNNode(geometry: ring)
-        ringNode.name = "Ring"
+        ringNode.name = "Hoop"
         let shape = SCNPhysicsShape(geometry: ring, options: nil)
         ringNode.physicsBody = SCNPhysicsBody(type: .static, shape: shape)
         ringNode.physicsBody?.isAffectedByGravity = false
@@ -126,7 +158,7 @@ extension SceneManager {
         return ringNode
     }
     
-    func makeCube() -> SCNNode {
+    private func makeCube() -> SCNNode {
         let box = SCNBox(width: 0.1, height: 0.1, length: 0.1, chamferRadius: 0)
         let material = SCNMaterial()
         material.diffuse.contents = UIColor.red
@@ -139,8 +171,12 @@ extension SceneManager {
         return boxNode
     }
     
-    func makeBall() -> SCNNode {
-        let sphere = SCNSphere(radius: 1)
+    private func makeBall(radius: CGFloat) -> SCNNode {
+        let sphere = SCNSphere(radius: radius)
+        let material = SCNMaterial()
+        material.diffuse.contents = UIColor.yellow
+        sphere.materials = [material]
+        
         let sphereNode = SCNNode(geometry: sphere)
         sphereNode.name = "Ball"
         sphereNode.physicsBody = SCNPhysicsBody(type: .dynamic, shape: nil)
@@ -172,6 +208,28 @@ extension SceneManager {
 
 }
 
+
+// MARK: - Timer Controls
+
+extension SceneManager {
+    
+    private func startTimer() {
+        
+        timer = Timer(timeInterval: 1, target: self, selector: #selector(incrementCounter), userInfo: nil, repeats: true)
+        timer?.fire()
+    
+    }
+    
+    private func stopTimer() {
+        timer?.invalidate()
+        timerCount = 0
+    }
+    
+    @objc private func incrementCounter() {
+        timerCount += 1
+    }
+    
+}
 
 
 
