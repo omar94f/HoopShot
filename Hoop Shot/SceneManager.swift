@@ -30,7 +30,8 @@ class SceneManager {
     var currentHoop : SCNNode?
     var currentBalls : [SCNNode?] = [nil,nil]
     
-    let velocityFactor: Double = 10
+    let velocityFactor: Double = 7
+    let maxVelocity: Double = 7
     
     var timer : Timer?
     var timerCount: Int = 0 {
@@ -38,17 +39,13 @@ class SceneManager {
             self.delegate?.setTimer(count: timerCount)
         }
     }
-    
-    
-    
-    var delegate : SceneMangerDelegate?
-    
-    
     var score = 0 {
         didSet {
             self.delegate?.setScore(score: score)
         }
     }
+    
+    var delegate : SceneMangerDelegate?
     
     init(sceneView : ARSCNView) {
         self.sceneView = sceneView
@@ -63,7 +60,7 @@ class SceneManager {
         box1Node.physicsBody = SCNPhysicsBody(type: .static, shape: nil)
         box1Node.physicsBody?.categoryBitMask = ObjectType.hoop.rawValue
         box1Node.position = SCNVector3(0,0,-0.8)
-        scene.rootNode.addChildNode(box1Node)
+//        scene.rootNode.addChildNode(box1Node)
 
     }
     
@@ -72,24 +69,15 @@ class SceneManager {
         
     }
     
-    
     func addHoop() {
         
         if let hoop = currentHoop {
             hoop.removeFromParentNode() }
         
         let ring = makeHoop()
-//        let cube = makeCube()
-        
-//        positionNode(node: cube, at: -0.4)
         positionNode(node: ring, at: -0.4)
-        
         scene.rootNode.addChildNode(ring)
-//        scene.rootNode.addChildNode(cube)
-        
         currentHoop = ring
-//        currentHoop = cube
-        
         
     }
     
@@ -100,7 +88,6 @@ class SceneManager {
     func touchEnded() {
         self.stopTimer()
     }
-    
     
     func shoot(swipeInfo: SwipeInfo) {
         
@@ -117,7 +104,7 @@ class SceneManager {
 
 
         // Calculate velocity
-        let timeDifference = min(max(swipeInfo.endTime - swipeInfo.startTime, 1),5)
+        let timeDifference = min(max(swipeInfo.endTime - swipeInfo.startTime, 1),7)
         let velocity = Float( velocityFactor*timeDifference)
 
         // Create force vector
@@ -215,7 +202,7 @@ extension SceneManager {
     
     private func startTimer() {
         
-        timer = Timer(timeInterval: 1, target: self, selector: #selector(incrementCounter), userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(incrementCounter), userInfo: nil, repeats: true)
         timer?.fire()
     
     }
